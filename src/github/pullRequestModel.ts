@@ -15,7 +15,7 @@ import { Remote } from '../common/remote';
 import { ITelemetry } from '../common/telemetry';
 import { ReviewEvent as CommonReviewEvent, isReviewEvent, TimelineEvent } from '../common/timelineEvent';
 import { toPRUri, toReviewUri } from '../common/uri';
-import { formatError } from '../common/utils';
+import { equals, formatError, groupBy } from '../common/utils';
 import { OctokitCommon } from './common';
 import { FolderRepositoryManager } from './folderRepositoryManager';
 import { GitHubRepository } from './githubRepository';
@@ -399,6 +399,8 @@ export class PullRequestModel extends IssueModel<PullRequest> implements IPullRe
 
 		this.hasPendingReview = true;
 		await this.updateDraftModeContext();
+		// Update review comment cache - this is a new review thread
+		this.getReviewThreads();
 
 		return parseGraphQLComment(data.addPullRequestReview.pullRequestReview.comments.nodes[0], false);
 	}
